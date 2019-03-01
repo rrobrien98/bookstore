@@ -5,22 +5,105 @@
 import org.apache.xmlrpc.webserver.WebServer;
 import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.server.PropertyHandlerMapping;
-import java.util.Array;
+import java.util.concurrent.TimeUnit;
 import java.util.ArrayList;
-/**
- * A simple example XML-RPC server program.
- */
+
+
+
 public class Catalog {
-	private ArrayList<Book> library = new Arraylist<Book>();
-  public Integer[] hello(int test) {
-    System.out.println("catalog recieved message");
-    Integer[] array = new Integer[1];
-    array[0] = test +1;
-    return array;
-  }
+	private static ArrayList<Book> library = new ArrayList<Book>();
+  	static Book book1 = new Book("Mystery", 1001, "Scooby-Doo", 5);
+	static Book book2 = new Book("Fantasy", 1002, "Harry Potter", 10);
+	static Book book3 = new Book("Fantasy", 1003, "Star Wars", 6);
+	static Book book4 = new Book("Romance", 1004, "Romeo and Juliet", 4);
+	static Book book5 = new Book("Mystery", 1005, "The Giver", 3);
+	static Book book6 = new Book("Romance", 1006, "Shrek", 10);
+	static Book book7 = new Book("Fantasy", 1007, "Narnia", 8);
+	static Book book8 = new Book("Mystery", 1008, "Sherlock Holmes", 2);
+	static Book book9 = new Book("Romance", 1009, "Jane Austen", 7);
+	static Book book10 = new Book("Fantasy", 1010, "Lightning Theif", 3);
+	public synchronized Integer[] update(int item_number, int qty){
+		Integer[] copies = new Integer[1];
+		for (Book book : library){
+			if (book.getItemNumber() == item_number){
+				copies[0] = book.getCopies();
+				book.setCopies(book.getCopies() + qty);
+				
+			}
+		}
+		return copies;
+	}
+
+	public Integer[] query(String arg) {
+  		System.out.println("catalog recieved message" +  arg);
+    	
+		
+			
+		int topic_matches = 0;
+		for (Book book : library){
+			
+			if (book.getTopic().equals( (String) arg)){	
+				topic_matches++;
+			}
+				
+		}		
+		if(topic_matches == 0){
+			topic_matches++;
+		}
+		Integer[] matches = new Integer[topic_matches];
+		matches[0] = -1;
+		int i = 0;
+
+		for (Book book : library){
+			if (book.getTopic().equals((String) arg)){
+				System.out.println(book.getName());
+				matches[i] = book.getItemNumber();
+				i++;
+			}
+		}
+		
+		
+	
+		//System.out.println("array : " + matches[0] + (matches == null));	
+      		//matches[0] = "non empty string";	
+		return  matches;
+  	}
+	public String[] query(int arg) {
+  		System.out.println("catalog recieved message" +  arg);
+    		String[] matches = new String[1];
+		matches[0] = "Cannot Find Book\n";
+		for (Book book : library){
+			if (book.getItemNumber() ==  arg){
+				System.out.println("matched book");
+				matches[0] = book.getName() + "," + book.getTopic() + "," +  book.getCopies();
+				break;
+				}
+			
+		}
+		//}
+
+		System.out.println("array : " + matches[0] + (matches == null));	
+      		//matches[0] = "non empty string";	
+		return  matches;
+  	}
 
   public static void main(String[] args) {
-    try {
+    
+  	//Book book1 = new Book("Mystery", 1234, "Scooby-Doo", 5);
+	//Book book2 = new Book("Fantasy", 4321, "Harry Potter", 10);
+	library.add(book1);
+	library.add(book2);
+
+	library.add(book3);
+	library.add(book4);
+	library.add(book5);
+	library.add(book6);
+	library.add(book7);
+	library.add(book8);
+	library.add(book9);
+	library.add(book10);
+	  
+	try {
       PropertyHandlerMapping phm = new PropertyHandlerMapping();
       XmlRpcServer xmlRpcServer;
       WebServer server = new WebServer(8085);
@@ -28,8 +111,15 @@ public class Catalog {
       phm.addHandler("CatalogServer", Catalog.class);
       xmlRpcServer.setHandlerMapping(phm);
       server.start();
+      
       System.out.println("XML-RPC server started");
-    } catch (Exception e) {
+    	while(true){
+		TimeUnit.SECONDS.sleep(30);
+		for(Book book : library){
+			book.setCopies(book.getCopies() + 1);
+		}
+	}
+	} catch (Exception e) {
       System.err.println("Server exception: " + e);
     }
   }

@@ -1,8 +1,9 @@
 /*
  * Book Object
  */
+import java.io.*;
 
-public class Book {
+public class Book {//implements java.io.Serializable{
 	private String topic;
 	private int item_number;
 	private String name;
