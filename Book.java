@@ -1,9 +1,13 @@
 /*
  * Book Object
+ * 
+ * represents a single book title in the library
+ * contains the name of the book, the topic of the book, and the number of copies left in the library
  */
 import java.io.*;
 
-public class Book {//implements java.io.Serializable{
+public class Book {
+	
 	private String topic;
 	private int item_number;
 	private String name;
